@@ -1,5 +1,5 @@
 # path_following_algorithms
-Python based examples for path planning algorithms, such as follow the carrot and pure pursuit.
+Python based examples for path planning algorithms; 'follow the carrot' and 'pure pursuit'.
 
 | __Follow the carrot__ | __Pure pursuit__ |
 |---|---|
