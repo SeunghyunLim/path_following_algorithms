@@ -1,18 +1,8 @@
-/*
- * path_following_algorithms
- * Copyright (c) 2021, Seunghyun Lim
- *
- * THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS CREATIVE
- * COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS PROTECTED BY
- * COPYRIGHT AND/OR OTHER APPLICABLE LAW. ANY USE OF THE WORK OTHER THAN AS
- * AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT LAW IS PROHIBITED.
- *
- * BY EXERCISING ANY RIGHTS TO THE WORK PROVIDED HERE, YOU ACCEPT AND AGREE TO
- * BE BOUND BY THE TERMS OF THIS LICENSE. THE LICENSOR GRANTS YOU THE RIGHTS
- * CONTAINED HERE IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND
- * CONDITIONS.
- *
- */
+'''
+* path_following_algorithms
+* follow_the_carrot.py
+* Copyright (c) 2021, Seunghyun Lim
+'''
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,6 +14,8 @@ wp = 0
 vx = 0.3
 theta = 0.5
 w_limit = 0.48
+waypoints = [[0, 8], [5, 8], [5, 0], [12, 0]]
+position = [0, 8.5]
 
 def position_vector(vx, w, theta):
     global w_limit
@@ -49,24 +41,20 @@ def ftc(position, waypoints, T):
     xo = x_n0 + up*(x_n1 - x_n0)
     yo = y_n0 + up*(y_n1 - y_n0)
 
+    error = np.sqrt((X - xo)**2+(Y - yo)**2)
+
     if np.sqrt((x_n1 - xo)**2+(y_n1 - yo)**2) <= L:
-        if wp < len(waypoints)-1:
+        if wp<len(waypoints)-2:
             wp=wp+1
 
     wpvec = np.array([x_n1 - x_n0, y_n1 - y_n0])
     norm_vec = wpvec/np.linalg.norm(wpvec)
-
     [xl, yl] = [xo, yo] + L*norm_vec
-    print(xl)
-
     thd = np.arctan2(yl-Y, xl-X) - theta
-    print(thd*180/3.14)
+
     w = thd/T
 
-    return vx, w
-
-waypoints = [[0, 8], [5, 8], [5, 0], [12, 0]]
-position = [0, 9]
+    return vx, w, error
 
 x_way = []
 y_way = []
@@ -80,18 +68,43 @@ iter = 0
 fig = plt.subplots()
 plt.xlim(-2, 14)
 plt.ylim(-2, 12)
+command_list = []
+error_list = []
+odom_list = [[],[]]
 
-while iter<1000:
-    vx, w = ftc(position, waypoints, dt)
+while np.linalg.norm(np.array(position)-waypoints[len(waypoints)-1])>0.1:
+    vx, w, error = ftc(position, waypoints, dt)
+    command_list.append([vx, w])
+    error_list.append(error)
     Xdot, Ydot, tdot = position_vector(vx, w, theta)
     position[0] = position[0]+dt*Xdot
     position[1] = position[1]+dt*Ydot
+    odom_list[0].append(position[0])
+    odom_list[1].append(position[1])
+    plt.plot(odom_list[0], odom_list[1], 'b')
     theta = theta+dt*tdot
     iter += 1
     plt.plot(x_way, y_way, 'r--')
     plt.arrow(position[0], position[1], Xdot, Ydot, width=0.05)
     plt.scatter(position[0], position[1])
+    plt.title("Follow the carrot")
+    plt.legend(['odometry','path'])
     plt.xlim(-2, 14)
     plt.ylim(-2, 12)
     plt.pause(dt*0.01)
-    plt.cla()
+    if np.linalg.norm(np.array(position)-waypoints[len(waypoints)-1])>0.1:
+        plt.cla()
+    else:
+        plt.waitforbuttonpress()
+        plt.cla()
+        plt.axis(option='auto')
+        plt.title("Position RMSE (L: {}m)".format(L))
+        plt.plot(error_list)
+        plt.waitforbuttonpress()
+        plt.cla()
+        plt.axis(option='auto')
+        plt.title("Command input (L: {}m)".format(L))
+        plt.plot(command_list)
+        plt.legend(['Vx(m/s)','w(rad/s)'])
+        plt.show()
+print("Average Error: {}".format(np.average(error_list)))
