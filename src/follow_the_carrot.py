@@ -14,8 +14,9 @@ wp = 0
 vx = 0.3
 theta = 0.5
 w_limit = 0.48
-waypoints = [[0, 8], [5, 8], [5, 0], [12, 0]]
+#waypoints = [[0, 8], [5, 8], [5, 0], [12, 0]]
 #waypoints = [[0, 8], [5, 8], [6, 10], [5, 0], [12, 0]]
+waypoints = [[0, 8], [5, 8], [5, 5], [3, 3], [5 ,0], [8, 2], [12, 0]]
 position = [0, 8.5]
 
 def position_vector(vx, w, theta):
@@ -104,6 +105,7 @@ while np.linalg.norm(np.array(position)-waypoints[len(waypoints)-1])>0.1:
         plt.waitforbuttonpress()
         plt.cla()
         plt.axis(option='auto')
+        plt.ylim(-10, 10)
         plt.title("Command input (L: {}m)".format(L))
         plt.plot(command_list)
         plt.legend(['Vx(m/s)','w(rad/s)'])
