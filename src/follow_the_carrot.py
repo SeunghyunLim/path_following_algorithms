@@ -15,6 +15,7 @@ vx = 0.3
 theta = 0.5
 w_limit = 0.48
 waypoints = [[0, 8], [5, 8], [5, 0], [12, 0]]
+#waypoints = [[0, 8], [5, 8], [6, 10], [5, 0], [12, 0]]
 position = [0, 8.5]
 
 def position_vector(vx, w, theta):
