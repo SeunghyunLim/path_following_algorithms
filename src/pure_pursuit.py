@@ -50,7 +50,10 @@ def pure_pursuit(position, waypoints):
             wp=wp+1
 
     do = np.sqrt((X - xo)**2+(Y - yo)**2)
-    dl = np.sqrt(L**2-do**2)
+    if do**2 >= L**2:
+        dl = 0
+    else:
+        dl = np.sqrt(L**2-do**2)
 
     wpvec = np.array([x_n1 - x_n0, y_n1 - y_n0])
     norm_vec = wpvec/np.linalg.norm(wpvec)
